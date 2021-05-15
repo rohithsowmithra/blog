@@ -4,7 +4,15 @@ from django.contrib.auth.models import User
 
 # Create your models here.
 
+class PublishedManager(models.Manager):
+    def get_queryset(self):
+        return super(PublishedManager, self).get_queryset().filter(status='Published')
+
 class Post(models.Model):
+
+    objects = models.Manager()
+    published = PublishedManager()
+
     STATUS_CHOICES = (
         ('draft', 'Draft'),
         ('published', 'Published'),
