@@ -3,4 +3,5 @@ my_env/
 django
 main.py
 mysite/mysite/__pycache__/
+**/__pycache__/
 mysite/db.sqlite3
