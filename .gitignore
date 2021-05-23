@@ -2,3 +2,5 @@
 my_env/
 django
 main.py
+mysite/mysite/__pycache__/
+mysite/db.sqlite3
