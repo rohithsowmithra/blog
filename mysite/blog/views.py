@@ -5,6 +5,7 @@ from django.views.generic import ListView
 from .forms import EmailPostForm, CommentForm
 from django.core.mail import send_mail
 from taggit.models import Tag
+from django.db.models import Count
 
 # view for sharing posts via email
 
@@ -109,10 +110,22 @@ def post_detail(request, year, month, day, post):
     else:
         comment_form = CommentForm()
 
+    # list of similar posts
+
+    # get the ids of tags for current posts. retrive values instead of single value tuples
+    post_tags_ids = post.tags.values_list('id', flat=True)
+    # get the posts containing any of post_tags_ids, excluding the current post
+    similar_posts = Post.published.filter(tags__in=post_tags_ids)\
+                                    .exclude(id=post.id)
+    # use Count() to compute number of tags shared with all other tags and order the results by same_tags and publish desc
+    similar_posts = similar_posts.annotate(same_tags=Count('tags'))\
+                                    .order_by('-same_tags', '-publish')[:4]
+
     context_object = {'post': post,
                       'comments': comments,
                       'new_comment': new_comment,
-                      'comment_form': comment_form}
+                      'comment_form': comment_form,
+                      'similar_posts': similar_posts}
 
     return render(request, 'blog/post/detail.html', context_object)
 
