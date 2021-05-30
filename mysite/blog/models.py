@@ -2,8 +2,7 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
-
-# Create your models here.
+from taggit.managers import TaggableManager
 
 class PublishedManager(models.Manager):
     def get_queryset(self):
@@ -11,9 +10,16 @@ class PublishedManager(models.Manager):
 
 class Post(models.Model):
 
+    # To add, retrieve and remove tags from Post objects
+    tags = TaggableManager()
+
+    # default manager
     objects = models.Manager()
+
+    # create a new manager for Post model
     published = PublishedManager()
 
+    # Model fields
     STATUS_CHOICES = (
         ('draft', 'Draft'),
         ('published', 'Published'),
@@ -27,6 +33,7 @@ class Post(models.Model):
     updated = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='draft')
 
+    # using reverse() instead of hardcoding url
     def get_absolute_url(self):
         return reverse('blog:post_detail', args=[self.publish.year, self.publish.month,\
                                                  self.publish.day, self.slug])
@@ -37,7 +44,11 @@ class Post(models.Model):
         def __str__(self):
             return self.title
 
+
+# Comments Model
+
 class Comment(models.Model):
+    # Model fields
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     name = models.CharField(max_length=80)
     email = models.EmailField()
